@@ -3,6 +3,8 @@ mod strat_parser;
 use std::{io, time::Instant};
 use strat_parser::{suggest_action, BlackjackAction, CARD_ORDER};
 
+const FACE_CARDS: [&str; 3] = ["J", "Q", "K"];
+
 struct BlackjackCalculator {
 	player_cards: Vec<String>,
 	dealer_cards: Vec<String>,
@@ -11,6 +13,20 @@ struct BlackjackCalculator {
 impl BlackjackCalculator {
 	fn new(player_cards: Vec<String>, dealer_cards: Vec<String>) -> Self {
 		BlackjackCalculator { player_cards, dealer_cards }
+	}
+
+	fn convert_face_cards(&self, cards: Vec<String>) -> Vec<String> {
+		let mut converted_cards = vec![];
+
+		for card in cards {
+			if FACE_CARDS.contains(&card.as_str()) {
+				converted_cards.push("10".to_string());
+			} else {
+				converted_cards.push(card);
+			}
+		}
+
+		converted_cards
 	}
 
 	fn order_hand(&self, cards: Vec<String>) -> Vec<String> {
@@ -32,7 +48,7 @@ impl BlackjackCalculator {
 	}
 
 	fn is_pair(&self, cards: Vec<String>) -> Option<String> {
-		let ordered_cards = self.order_hand(cards);
+		let ordered_cards = self.order_hand(self.convert_face_cards(cards));
 
 		match ordered_cards.as_slice() {
 			[first_card, second_card]
@@ -53,10 +69,8 @@ impl BlackjackCalculator {
 		let mut total = 0;
 		let mut aces = 0;
 
-		for card in cards {
-			if card == "J" || card == "Q" || card == "K" {
-				total += 10;
-			} else if card == "A" {
+		for card in self.convert_face_cards(cards) {
+			if card == "A" {
 				aces += 1;
 			} else {
 				total += card.parse::<u8>().unwrap();
@@ -76,9 +90,12 @@ impl BlackjackCalculator {
 
 	fn get_action(&self) -> BlackjackAction {
 		let player_total = self.hand_total(self.player_cards.clone());
+		if player_total == 21 {
+			return BlackjackAction::Blackjack;
+		}
 
 		let dealer_total = self.hand_total(self.dealer_cards.clone());
-		let dealer_card = self.dealer_cards[0].clone();
+		let dealer_card = self.convert_face_cards(self.dealer_cards.clone())[0].to_string();
 
 		let pair = self.is_pair(self.player_cards.clone());
 

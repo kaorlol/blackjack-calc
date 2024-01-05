@@ -13,6 +13,7 @@ pub enum BlackjackAction {
 	SurrenderHit,
 	SurrenderStand,
 	SurrenderSplit,
+	Blackjack,
 }
 
 impl BlackjackAction {
@@ -29,11 +30,13 @@ impl BlackjackAction {
 			BlackjackAction::SurrenderSplit => {
 				"Surrender if allowed and double after split not allowed, otherwise split"
 			}
+			BlackjackAction::Blackjack => "You have blackjack!",
 		}
 	}
 }
 
 type StrategyTable = HashMap<String, HashMap<String, String>>;
+type PlayerCard = Option<HashMap<String, String>>; // Dealer card -> action
 
 fn strategy_table() -> StrategyTable {
 	let strategy_json = include_str!("../strategies/2-deck-soft-17.json");
@@ -42,32 +45,28 @@ fn strategy_table() -> StrategyTable {
 	strategy_table
 }
 
-fn find_player_card(strategy_table: StrategyTable, player_count: u8, pair: Option<String>) -> Option<HashMap<String, String>> {
+fn find_player_card(strategy_table: StrategyTable, player_count: u8, pair: Option<String>) -> PlayerCard {
 	if pair.is_some() {
 		let found_pair = strategy_table.get(pair.as_ref().unwrap());
 
 		if let Some(pair_actions) = found_pair {
 			println!("Found pair: {}", pair.as_ref().unwrap());
 			return Some(pair_actions.clone());
-		} else {
-			return None;
 		}
+		return None;
 	}
 
 	let found_player_card = strategy_table.get(&player_count.to_string());
-
 	if let Some(player_actions) = found_player_card {
 		return Some(player_actions.clone());
-	} else {
-		return None;
 	}
+	return None;
 }
 
 pub fn suggest_action(player_count: u8, dealer_card: String, pair: Option<String>) -> Option<BlackjackAction> {
 	let strategy_table = strategy_table();
 
 	let player_card = find_player_card(strategy_table, player_count, pair);
-
 	if let Some(player_actions) = player_card {
 		if let Some(action) = player_actions.get(&dealer_card) {
 			match action.as_str() {
