@@ -44,9 +44,10 @@ fn strategy_table() -> StrategyTable {
 
 fn find_player_card(strategy_table: StrategyTable, player_count: u8, pair: Option<String>) -> Option<HashMap<String, String>> {
 	if pair.is_some() {
-		let found_pair = strategy_table.get(&pair.unwrap());
+		let found_pair = strategy_table.get(pair.as_ref().unwrap());
 
 		if let Some(pair_actions) = found_pair {
+			println!("Found pair: {}", pair.as_ref().unwrap());
 			return Some(pair_actions.clone());
 		} else {
 			return None;
@@ -62,12 +63,13 @@ fn find_player_card(strategy_table: StrategyTable, player_count: u8, pair: Optio
 	}
 }
 
-pub fn suggest_action(player_count: u8, dealer_count: u8, pair: Option<String>) -> Option<BlackjackAction> {
+pub fn suggest_action(player_count: u8, dealer_card: String, pair: Option<String>) -> Option<BlackjackAction> {
 	let strategy_table = strategy_table();
 
 	let player_card = find_player_card(strategy_table, player_count, pair);
+
 	if let Some(player_actions) = player_card {
-		if let Some(action) = player_actions.get(&dealer_count.to_string()) {
+		if let Some(action) = player_actions.get(&dealer_card) {
 			match action.as_str() {
 				"Hit" => Some(BlackjackAction::Hit),
 				"Stand" => Some(BlackjackAction::Stand),

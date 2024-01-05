@@ -72,15 +72,16 @@ impl BlackjackCalculator {
 
 	fn get_action(&self) -> BlackjackAction {
 		let player_total = self.hand_total(self.player_cards.clone());
+
 		let dealer_total = self.hand_total(self.dealer_cards.clone());
+		let dealer_card = self.dealer_cards[0].clone();
 
 		let pair = self.is_pair(self.player_cards.clone());
 
 		println!("\nPlayer total: {}", player_total);
 		println!("Dealer total: {}", dealer_total);
-		println!("Pair: {}", if pair.is_some() { pair.clone().unwrap() } else { "None".to_string() });
 
-		suggest_action(player_total, dealer_total, pair).ok_or("Failed to get decision").unwrap()
+		suggest_action(player_total, dealer_card, pair).ok_or("Failed to get decision").unwrap()
 	}
 }
 
@@ -88,19 +89,24 @@ fn is_number(str: &str) -> bool {
 	str.parse::<u8>().is_ok()
 }
 
-fn get_hand_from_input() -> Vec<String> {
+fn get_hand_from_input(hand_type: &str) -> Vec<String> {
 	let mut input = String::new();
 	io::stdin().read_line(&mut input).expect("Failed to read input");
 
-	input.trim().split(",").map(|s| s.trim().to_string()).collect()
+	// input.trim().split(",").map(|s| s.trim().to_string()).collect()
+	match hand_type {
+		"player" => input.trim().split(",").map(|s| s.trim().to_string()).collect(),
+		"dealer" => vec![input.trim().to_string()],
+		_ => vec![],
+	}
 }
 
 fn main() {
-	println!("Enter your hand (comma-separated, e.g., '10,5,A'):");
-	let player_hand = get_hand_from_input();
+	println!("Enter your hand (comma-separated, e.g., '3,A'):");
+	let player_hand = get_hand_from_input("player");
 
-	println!("\nEnter dealer's hand (comma-separated, e.g., 'K,7'):");
-	let dealer_hand = get_hand_from_input();
+	println!("\nEnter dealer's card (e.g., 'Q'):");
+	let dealer_hand = get_hand_from_input("dealer");
 
 	let start = Instant::now();
 
