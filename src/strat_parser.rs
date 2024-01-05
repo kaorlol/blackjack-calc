@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+pub const CARD_ORDER: [&str; 13] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+
 #[derive(Debug)]
 pub enum BlackjackAction {
 	Hit,
@@ -31,17 +33,40 @@ impl BlackjackAction {
 	}
 }
 
-fn strategy_table() -> HashMap<String, HashMap<String, String>> {
+type StrategyTable = HashMap<String, HashMap<String, String>>;
+
+fn strategy_table() -> StrategyTable {
 	let strategy_json = include_str!("../strategies/2-deck-soft-17.json");
-	let strategy_table: HashMap<String, HashMap<String, String>> =
+	let strategy_table: StrategyTable =
 		serde_json::from_str(strategy_json).expect("Failed to parse strategy table JSON");
 	strategy_table
 }
 
-pub fn suggest_action(player_count: u8, dealer_count: u8) -> Option<BlackjackAction> {
+fn find_player_card(strategy_table: StrategyTable, player_count: u8, pair: Option<String>) -> Option<HashMap<String, String>> {
+	if pair.is_some() {
+		let found_pair = strategy_table.get(&pair.unwrap());
+
+		if let Some(pair_actions) = found_pair {
+			return Some(pair_actions.clone());
+		} else {
+			return None;
+		}
+	}
+
+	let found_player_card = strategy_table.get(&player_count.to_string());
+
+	if let Some(player_actions) = found_player_card {
+		return Some(player_actions.clone());
+	} else {
+		return None;
+	}
+}
+
+pub fn suggest_action(player_count: u8, dealer_count: u8, pair: Option<String>) -> Option<BlackjackAction> {
 	let strategy_table = strategy_table();
 
-	if let Some(player_actions) = strategy_table.get(&player_count.to_string()) {
+	let player_card = find_player_card(strategy_table, player_count, pair);
+	if let Some(player_actions) = player_card {
 		if let Some(action) = player_actions.get(&dealer_count.to_string()) {
 			match action.as_str() {
 				"Hit" => Some(BlackjackAction::Hit),

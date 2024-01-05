@@ -1,5 +1,53 @@
 {
-	"4-8": {
+	"4": {
+		"2": "Hit",
+		"3": "Hit",
+		"4": "Hit",
+		"5": "Hit",
+		"6": "Hit",
+		"7": "Hit",
+		"8": "Hit",
+		"9": "Hit",
+		"10": "Hit",
+		"A": "Hit"
+	},
+	"5": {
+		"2": "Hit",
+		"3": "Hit",
+		"4": "Hit",
+		"5": "Hit",
+		"6": "Hit",
+		"7": "Hit",
+		"8": "Hit",
+		"9": "Hit",
+		"10": "Hit",
+		"A": "Hit"
+	},
+	"6": {
+		"2": "Hit",
+		"3": "Hit",
+		"4": "Hit",
+		"5": "Hit",
+		"6": "Hit",
+		"7": "Hit",
+		"8": "Hit",
+		"9": "Hit",
+		"10": "Hit",
+		"A": "Hit"
+	},
+	"7": {
+		"2": "Hit",
+		"3": "Hit",
+		"4": "Hit",
+		"5": "Hit",
+		"6": "Hit",
+		"7": "Hit",
+		"8": "Hit",
+		"9": "Hit",
+		"10": "Hit",
+		"A": "Hit"
+	},
+	"8": {
 		"2": "Hit",
 		"3": "Hit",
 		"4": "Hit",
@@ -119,7 +167,43 @@
 		"10": "Stand",
 		"A": "SurrenderStand"
 	},
-	"18-21": {
+	"18": {
+		"2": "Stand",
+		"3": "Stand",
+		"4": "Stand",
+		"5": "Stand",
+		"6": "Stand",
+		"7": "Stand",
+		"8": "Stand",
+		"9": "Stand",
+		"10": "Stand",
+		"A": "Stand"
+	},
+	"19": {
+		"2": "Stand",
+		"3": "Stand",
+		"4": "Stand",
+		"5": "Stand",
+		"6": "Stand",
+		"7": "Stand",
+		"8": "Stand",
+		"9": "Stand",
+		"10": "Stand",
+		"A": "Stand"
+	},
+	"20": {
+		"2": "Stand",
+		"3": "Stand",
+		"4": "Stand",
+		"5": "Stand",
+		"6": "Stand",
+		"7": "Stand",
+		"8": "Stand",
+		"9": "Stand",
+		"10": "Stand",
+		"A": "Stand"
+	},
+	"21": {
 		"2": "Stand",
 		"3": "Stand",
 		"4": "Stand",
