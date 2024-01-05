@@ -27,22 +27,26 @@ impl BlackjackCalculator {
 		ordered_cards
 	}
 
+	fn is_ace(&self, card: &String) -> bool {
+		card == "A"
+	}
+
 	fn is_pair(&self, cards: Vec<String>) -> Option<String> {
 		let ordered_cards = self.order_hand(cards);
-		if ordered_cards.len() != 2 {
-			return None;
+
+		match ordered_cards.as_slice() {
+			[first_card, second_card]
+				if self.is_ace(first_card) && (self.is_ace(second_card) || is_number(second_card)) =>
+			{
+				Some(format!("{},{}", first_card, second_card))
+			}
+			[first_card, second_card]
+				if is_number(first_card) && is_number(second_card) && first_card == second_card =>
+			{
+				Some(format!("{},{}", first_card, second_card))
+			}
+			_ => None,
 		}
-
-		let first_card = ordered_cards[0].clone();
-		let second_card = ordered_cards[1].clone();
-
-		if first_card == "A" && (second_card == "A" || is_number(&second_card)) {
-			return Some(format!("{},{}", first_card, second_card));
-		} else if is_number(&first_card) && is_number(&second_card) && first_card == second_card {
-			return Some(format!("{},{}", first_card, second_card));
-		}
-
-		None
 	}
 
 	fn hand_total(&self, cards: Vec<String>) -> u8 {
