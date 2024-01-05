@@ -39,7 +39,7 @@ type StrategyTable = HashMap<String, HashMap<String, String>>;
 type PlayerCard = Option<HashMap<String, String>>; // Dealer card -> action
 
 fn strategy_table() -> StrategyTable {
-	let strategy_json = include_str!("../strategies/2-deck-soft-17.json");
+	let strategy_json = include_str!("../strategies/2-deck-soft-17-Hit.json");
 	let strategy_table: StrategyTable =
 		serde_json::from_str(strategy_json).expect("Failed to parse strategy table JSON");
 	strategy_table
