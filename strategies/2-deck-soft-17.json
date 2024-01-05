@@ -299,7 +299,19 @@
 		"10": "Stand",
 		"A": "Stand"
 	},
-	"A,9-10": {
+	"A,9": {
+		"2": "Stand",
+		"3": "Stand",
+		"4": "Stand",
+		"5": "Stand",
+		"6": "Stand",
+		"7": "Stand",
+		"8": "Stand",
+		"9": "Stand",
+		"10": "Stand",
+		"A": "Stand"
+	},
+	"A,10": {
 		"2": "Stand",
 		"3": "Stand",
 		"4": "Stand",
