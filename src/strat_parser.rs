@@ -14,7 +14,6 @@ pub enum Action {
 	SurrenderHit,
 	SurrenderStand,
 	SurrenderSplit,
-	Blackjack,
 }
 
 #[derive(Debug)]
@@ -22,6 +21,7 @@ pub enum ActionError {
 	InvalidAction,
 	ToManyCards,
 	InvalidHand,
+	Blackjack,
 }
 
 impl From<ActionError> for &str {
@@ -30,6 +30,7 @@ impl From<ActionError> for &str {
 			ActionError::InvalidAction => "Invalid action",
 			ActionError::ToManyCards => "To many cards",
 			ActionError::InvalidHand => "Invalid hand",
+			ActionError::Blackjack => "You have blackjack!",
 		}
 	}
 }
@@ -46,7 +47,6 @@ impl Action {
 			Self::SurrenderHit => "Surrender if allowed, otherwise hit",
 			Self::SurrenderStand => "Surrender if allowed, otherwise stand",
 			Self::SurrenderSplit => "Surrender if allowed and double after split not allowed, otherwise split",
-			Self::Blackjack => "You have blackjack!",
 		}
 	}
 }
@@ -69,5 +69,5 @@ pub fn get_action(player_count: u8, dealer_card: String, pair: Option<String>) -
 	let strategy_table = get_strategy();
 	let player_actions = find_player_card(&strategy_table, player_count, pair)?;
 	let action = player_actions.get(&dealer_card)?;
-	Some(Action::from_str(action).unwrap())
+	Some(Action::from_str(action).ok()?)
 }

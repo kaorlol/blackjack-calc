@@ -82,7 +82,7 @@ impl Calculator {
 
 		let player_total = self.hand_total(&self.player_cards);
 		if player_total == 21 {
-			return Ok(Action::Blackjack);
+			return Err(ActionError::Blackjack);
 		}
 		// } else if player_total > 21 {
 		// 	return Err(ActionError::ToManyCards);
