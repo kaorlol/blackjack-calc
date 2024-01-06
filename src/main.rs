@@ -20,8 +20,8 @@ fn suggest_action(player_hand: Vec<String>, dealer_hand: Vec<String>) -> Result<
 		return Err(ActionError::Blackjack);
 	}
 
-	let dealer_total = hand_total(&player_hand);
-	let dealer_card = convert_face_cards(&player_hand)[0].to_string();
+	let dealer_total = hand_total(&dealer_hand);
+	let dealer_card = convert_face_cards(&dealer_hand)[0].to_string();
 
 	let pair = is_pair(&player_hand);
 
