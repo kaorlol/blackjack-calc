@@ -1,8 +1,10 @@
 mod hand_utils;
 mod strat_parser;
 
-use hand_utils::{convert_face_cards, hand_total};
-use hand_utils::checks::hand_checks::{is_bust, is_pair, is_valid_hand};
+use hand_utils::{
+	checks::hand_checks::{is_bust, is_pair, is_valid_hand},
+	convert_face_cards, hand_total,
+};
 use std::{io, time::Instant};
 use strat_parser::{get_action, Action, ActionError};
 
@@ -36,7 +38,7 @@ impl ActionCalculator {
 		println!("\nPlayer total: {}", player_total);
 		println!("Dealer total: {}", dealer_total);
 
-		Ok(get_action(player_total, dealer_card, pair).ok_or("Failed to get decision").unwrap())
+		Ok(get_action(player_total, dealer_card, pair).expect(ActionError::InvalidAction.into()))
 	}
 }
 
