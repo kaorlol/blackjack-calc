@@ -4,34 +4,34 @@ use strum_macros::{Display, EnumString};
 
 #[derive(Debug, PartialEq, EnumString, Display)]
 pub enum Action {
-    Hit,
-    Stand,
-    DoubleHit,
-    DoubleStand,
-    Split,
-    SplitHit,
-    SurrenderHit,
-    SurrenderStand,
-    SurrenderSplit,
+	Hit,
+	Stand,
+	DoubleHit,
+	DoubleStand,
+	Split,
+	SplitHit,
+	SurrenderHit,
+	SurrenderStand,
+	SurrenderSplit,
 }
 
 #[derive(Debug)]
 pub enum ActionError {
-    InvalidAction,
-    TooManyCards,
-    InvalidHand,
-    Blackjack,
+	InvalidAction,
+	TooManyCards,
+	InvalidHand,
+	Blackjack,
 }
 
 impl Into<&'static str> for ActionError {
-    fn into(self) -> &'static str {
-        match self {
-            ActionError::InvalidAction => "Invalid action",
-            ActionError::TooManyCards => "Too many cards",
-            ActionError::InvalidHand => "Invalid hand",
-            ActionError::Blackjack => "You have blackjack!",
-        }
-    }
+	fn into(self) -> &'static str {
+		match self {
+			ActionError::InvalidAction => "Invalid action",
+			ActionError::TooManyCards => "Too many cards",
+			ActionError::InvalidHand => "Invalid hand",
+			ActionError::Blackjack => "You have blackjack!",
+		}
+	}
 }
 
 impl Action {
