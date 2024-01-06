@@ -1,18 +1,18 @@
 mod strat_parser;
 
 use std::{io, time::Instant};
-use strat_parser::{suggest_action, BlackjackAction, CARD_ORDER};
+use strat_parser::{get_action, Action, CARD_ORDER};
 
 const FACE_CARDS: [&str; 3] = ["J", "Q", "K"];
 
-struct BlackjackCalculator {
+struct Calculator {
 	player_cards: Vec<String>,
 	dealer_cards: Vec<String>,
 }
 
-impl BlackjackCalculator {
+impl Calculator {
 	fn new(player_cards: Vec<String>, dealer_cards: Vec<String>) -> Self {
-		BlackjackCalculator { player_cards, dealer_cards }
+		Calculator { player_cards, dealer_cards }
 	}
 
 	fn convert_face_cards(&self, cards: Vec<String>) -> Vec<String> {
@@ -88,10 +88,10 @@ impl BlackjackCalculator {
 		total
 	}
 
-	fn get_action(&self) -> BlackjackAction {
+	fn suggest_action(&self) -> Action {
 		let player_total = self.hand_total(self.player_cards.clone());
 		if player_total == 21 {
-			return BlackjackAction::Blackjack;
+			return Action::Blackjack;
 		}
 
 		let dealer_total = self.hand_total(self.dealer_cards.clone());
@@ -102,7 +102,7 @@ impl BlackjackCalculator {
 		println!("\nPlayer total: {}", player_total);
 		println!("Dealer total: {}", dealer_total);
 
-		suggest_action(player_total, dealer_card, pair).ok_or("Failed to get decision").unwrap()
+		get_action(player_total, dealer_card, pair).ok_or("Failed to get decision").unwrap()
 	}
 }
 
@@ -114,10 +114,11 @@ fn get_hand_from_input(hand_type: &str) -> Vec<String> {
 	let mut input = String::new();
 	io::stdin().read_line(&mut input).expect("Failed to read input");
 
-	// input.trim().split(",").map(|s| s.trim().to_string()).collect()
+	input = input.trim().to_uppercase();
+
 	match hand_type {
-		"player" => input.trim().split(",").map(|s| s.trim().to_string()).collect(),
-		"dealer" => vec![input.trim().to_string()],
+		"player" => input.split(",").map(|s| s.trim().to_string()).collect(),
+		"dealer" => vec![input],
 		_ => vec![],
 	}
 }
@@ -131,8 +132,8 @@ fn main() {
 
 	let start = Instant::now();
 
-	let calculator = BlackjackCalculator::new(player_hand, dealer_hand);
-	let action = calculator.get_action();
+	let calculator = Calculator::new(player_hand, dealer_hand);
+	let action = calculator.suggest_action();
 
 	println!("\nAction: {}\nTook {:?} to calculate action", action.as_str(), start.elapsed());
 }
