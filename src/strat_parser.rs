@@ -1,6 +1,5 @@
 use serde_json::from_str;
-use std::collections::HashMap;
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 use strum_macros::EnumString;
 
 #[derive(Debug, PartialEq, EnumString)]
@@ -69,5 +68,5 @@ pub fn get_action(player_count: u8, dealer_card: String, pair: Option<String>) -
 	let strategy_table = get_strategy();
 	let player_actions = find_player_card(&strategy_table, player_count, pair)?;
 	let action = player_actions.get(&dealer_card)?;
-	Some(Action::from_str(action).ok()?)
+	Some(Action::from_str(action).expect("Failed to parse action"))
 }
