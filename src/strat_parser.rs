@@ -1,37 +1,37 @@
 use serde_json::from_str;
 use std::{collections::HashMap, str::FromStr};
-use strum_macros::EnumString;
+use strum_macros::{Display, EnumString};
 
-#[derive(Debug, PartialEq, EnumString)]
+#[derive(Debug, PartialEq, EnumString, Display)]
 pub enum Action {
-	Hit,
-	Stand,
-	DoubleHit,
-	DoubleStand,
-	Split,
-	SplitHit,
-	SurrenderHit,
-	SurrenderStand,
-	SurrenderSplit,
+    Hit,
+    Stand,
+    DoubleHit,
+    DoubleStand,
+    Split,
+    SplitHit,
+    SurrenderHit,
+    SurrenderStand,
+    SurrenderSplit,
 }
 
 #[derive(Debug)]
 pub enum ActionError {
-	InvalidAction,
-	ToManyCards,
-	InvalidHand,
-	Blackjack,
+    InvalidAction,
+    TooManyCards,
+    InvalidHand,
+    Blackjack,
 }
 
-impl From<ActionError> for &str {
-	fn from(error: ActionError) -> Self {
-		match error {
-			ActionError::InvalidAction => "Invalid action",
-			ActionError::ToManyCards => "To many cards",
-			ActionError::InvalidHand => "Invalid hand",
-			ActionError::Blackjack => "You have blackjack!",
-		}
-	}
+impl Into<&'static str> for ActionError {
+    fn into(self) -> &'static str {
+        match self {
+            ActionError::InvalidAction => "Invalid action",
+            ActionError::TooManyCards => "Too many cards",
+            ActionError::InvalidHand => "Invalid hand",
+            ActionError::Blackjack => "You have blackjack!",
+        }
+    }
 }
 
 impl Action {
@@ -68,5 +68,5 @@ pub fn get_action(player_count: u8, dealer_card: String, pair: Option<String>) -
 	let strategy_table = get_strategy();
 	let player_actions = find_player_card(&strategy_table, player_count, pair)?;
 	let action = player_actions.get(&dealer_card)?;
-	Some(Action::from_str(action).expect("Failed to parse action"))
+	Some(Action::from_str(action).expect(ActionError::InvalidAction.into()))
 }

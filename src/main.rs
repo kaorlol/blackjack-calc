@@ -60,6 +60,13 @@ impl Calculator {
 			.all(|card| is_number(card) || FACE_CARDS.contains(&card.as_str()) || self.is_ace(card))
 	}
 
+	fn is_bust(&self, cards: &Vec<String>) -> bool {
+		let ordered_cards = self.order_hand(&self.convert_face_cards(&cards));
+		let total = self.hand_total(&ordered_cards);
+
+		!self.is_pair(&ordered_cards).is_some() && total > 21
+	}
+
 	fn hand_total(&self, cards: &Vec<String>) -> u8 {
 		cards
 			.iter()
@@ -77,16 +84,15 @@ impl Calculator {
 
 	fn suggest_action(&self) -> Result<Action, ActionError> {
 		if !self.is_valid_hand(&self.player_cards) || !self.is_valid_hand(&self.dealer_cards) {
-			return Err(ActionError::InvalidAction);
+			return Err(ActionError::InvalidHand);
 		}
 
 		let player_total = self.hand_total(&self.player_cards);
-		if player_total == 21 {
+		if self.is_bust(&self.player_cards) {
+			return Err(ActionError::TooManyCards);
+		} else if player_total == 21 {
 			return Err(ActionError::Blackjack);
 		}
-		// } else if player_total > 21 {
-		// 	return Err(ActionError::ToManyCards);
-		// }
 
 		let dealer_total = self.hand_total(&self.dealer_cards);
 		let dealer_card = self.convert_face_cards(&self.dealer_cards)[0].to_string();
