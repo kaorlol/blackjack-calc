@@ -8,39 +8,29 @@ use hand_utils::{
 use std::{io, time::Instant};
 use strat_parser::{get_action, Action, ActionError};
 
-struct ActionCalculator {
-	player_cards: Vec<String>,
-	dealer_cards: Vec<String>,
-}
-
-impl ActionCalculator {
-	fn new(player_cards: Vec<String>, dealer_cards: Vec<String>) -> Self {
-		ActionCalculator { player_cards, dealer_cards }
+fn suggest_action(player_hand: Vec<String>, dealer_hand: Vec<String>) -> Result<Action, ActionError> {
+	if !is_valid_hand(&player_hand) || !is_valid_hand(&dealer_hand) {
+		return Err(ActionError::InvalidHand);
 	}
 
-	fn suggest_action(&self) -> Result<Action, ActionError> {
-		if !is_valid_hand(&self.player_cards) || !is_valid_hand(&self.dealer_cards) {
-			return Err(ActionError::InvalidHand);
-		}
-
-		let player_total = hand_total(&self.player_cards);
-		if is_bust(&self.player_cards) {
-			return Err(ActionError::TooManyCards);
-		} else if player_total == 21 {
-			return Err(ActionError::Blackjack);
-		}
-
-		let dealer_total = hand_total(&self.dealer_cards);
-		let dealer_card = convert_face_cards(&self.dealer_cards)[0].to_string();
-
-		let pair = is_pair(&self.player_cards);
-
-		println!("\nPlayer total: {}", player_total);
-		println!("Dealer total: {}", dealer_total);
-
-		Ok(get_action(player_total, dealer_card, pair).expect(ActionError::InvalidAction.into()))
+	let player_total = hand_total(&player_hand);
+	if is_bust(&player_hand) {
+		return Err(ActionError::TooManyCards);
+	} else if player_total == 21 {
+		return Err(ActionError::Blackjack);
 	}
+
+	let dealer_total = hand_total(&player_hand);
+	let dealer_card = convert_face_cards(&player_hand)[0].to_string();
+
+	let pair = is_pair(&player_hand);
+
+	println!("\nPlayer total: {}", player_total);
+	println!("Dealer total: {}", dealer_total);
+
+	Ok(get_action(player_total, dealer_card, pair).expect(ActionError::InvalidAction.into()))
 }
+
 
 fn get_hand_from_input(hand_type: &str) -> Vec<String> {
 	let mut input = String::new();
@@ -64,7 +54,6 @@ fn main() {
 
 	let start = Instant::now();
 
-	let calculator = ActionCalculator::new(player_hand, dealer_hand);
-	let action = calculator.suggest_action();
-	println!("\nAction: {}\nTook {:?} to calculate action", action.unwrap().as_str(), start.elapsed());
+	let action = suggest_action(player_hand, dealer_hand).expect("Failed to get action");
+	println!("\nAction: {}\nTook {:?} to calculate action", action.as_str(), start.elapsed());
 }
