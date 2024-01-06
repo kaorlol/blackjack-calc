@@ -47,6 +47,19 @@ fn get_hand_from_input(hand_type: &str) -> Vec<String> {
 	}
 }
 
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn test_suggest_action() {
+		let player_hand = vec!["A".to_string(), "A".to_string()];
+		let dealer_hand = vec!["Q".to_string()];
+		let result = suggest_action(player_hand, dealer_hand);
+		assert_eq!(result.unwrap(), Action::Split);
+	}
+}
+
 fn main() {
 	println!("Enter your hand (comma-separated, e.g., '3,A'):");
 	let player_hand = get_hand_from_input("player");
