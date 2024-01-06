@@ -31,7 +31,6 @@ fn suggest_action(player_hand: Vec<String>, dealer_hand: Vec<String>) -> Result<
 	Ok(get_action(player_total, dealer_card, pair).expect(ActionError::InvalidAction.into()))
 }
 
-
 fn get_hand_from_input(hand_type: &str) -> Vec<String> {
 	let mut input = String::new();
 	io::stdin().read_line(&mut input).expect("Failed to read input");
