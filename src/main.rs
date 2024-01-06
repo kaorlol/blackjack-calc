@@ -36,7 +36,7 @@ impl Calculator {
 		card == "A"
 	}
 
-	fn is_pair(&self, cards: Vec<String>) -> Option<String> {
+	fn is_pair(&self, cards: &Vec<String>) -> Option<String> {
 		let ordered_cards = self.order_hand(&self.convert_face_cards(&cards));
 
 		match ordered_cards.as_slice() {
@@ -91,7 +91,7 @@ impl Calculator {
 		let dealer_total = self.hand_total(&self.dealer_cards);
 		let dealer_card = self.convert_face_cards(&self.dealer_cards)[0].to_string();
 
-		let pair = self.is_pair(self.player_cards.clone());
+		let pair = self.is_pair(&self.player_cards);
 
 		println!("\nPlayer total: {}", player_total);
 		println!("Dealer total: {}", dealer_total);
