@@ -1,8 +1,9 @@
 mod strat_parser;
 
 use std::{io, time::Instant};
-use strat_parser::{get_action, Action, CARD_ORDER};
+use strat_parser::{get_action, Action, ActionError};
 
+const CARD_ORDER: [&str; 13] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 const FACE_CARDS: [&str; 3] = ["J", "Q", "K"];
 
 struct Calculator {
@@ -15,32 +16,20 @@ impl Calculator {
 		Calculator { player_cards, dealer_cards }
 	}
 
-	fn convert_face_cards(&self, cards: Vec<String>) -> Vec<String> {
-		let mut converted_cards = vec![];
-
-		for card in cards {
-			if FACE_CARDS.contains(&card.as_str()) {
-				converted_cards.push("10".to_string());
-			} else {
-				converted_cards.push(card);
-			}
-		}
-
-		converted_cards
+	fn convert_face_cards(&self, cards: &Vec<String>) -> Vec<String> {
+		cards
+			.iter()
+			.map(|card| FACE_CARDS.contains(&card.as_str()).then(|| "10".to_string()).unwrap_or(card.to_string()))
+			.collect()
 	}
 
-	fn order_hand(&self, cards: Vec<String>) -> Vec<String> {
-		let mut ordered_cards = vec![];
-
-		for card in CARD_ORDER.iter() {
-			for c in cards.iter() {
-				if c == card {
-					ordered_cards.push(c.to_string());
-				}
-			}
-		}
-
-		ordered_cards
+	fn order_hand(&self, cards: &Vec<String>) -> Vec<String> {
+		cards
+			.iter()
+			.map(|card| {
+				CARD_ORDER.iter().find(|c| c == &&card.as_str()).map(|c| c.to_string()).unwrap_or(card.to_string())
+			})
+			.collect()
 	}
 
 	fn is_ace(&self, card: &String) -> bool {
@@ -48,7 +37,7 @@ impl Calculator {
 	}
 
 	fn is_pair(&self, cards: Vec<String>) -> Option<String> {
-		let ordered_cards = self.order_hand(self.convert_face_cards(cards));
+		let ordered_cards = self.order_hand(&self.convert_face_cards(&cards));
 
 		match ordered_cards.as_slice() {
 			[first_card, second_card]
@@ -65,44 +54,49 @@ impl Calculator {
 		}
 	}
 
-	fn hand_total(&self, cards: Vec<String>) -> u8 {
-		let mut total = 0;
-		let mut aces = 0;
-
-		for card in self.convert_face_cards(cards) {
-			if card == "A" {
-				aces += 1;
-			} else {
-				total += card.parse::<u8>().unwrap();
-			}
-		}
-
-		for _ in 0..aces {
-			if total + 11 <= 21 {
-				total += 11;
-			} else {
-				total += 1;
-			}
-		}
-
-		total
+	fn is_valid_hand(&self, cards: &Vec<String>) -> bool {
+		cards
+			.iter()
+			.all(|card| is_number(card) || FACE_CARDS.contains(&card.as_str()) || self.is_ace(card))
 	}
 
-	fn suggest_action(&self) -> Action {
-		let player_total = self.hand_total(self.player_cards.clone());
-		if player_total == 21 {
-			return Action::Blackjack;
+	fn hand_total(&self, cards: &Vec<String>) -> u8 {
+		cards
+			.iter()
+			.map(|card| {
+				if self.is_ace(card) {
+					11
+				} else if FACE_CARDS.contains(&card.as_str()) {
+					10
+				} else {
+					card.parse::<u8>().unwrap()
+				}
+			})
+			.sum()
+	}
+
+	fn suggest_action(&self) -> Result<Action, ActionError> {
+		if !self.is_valid_hand(&self.player_cards) || !self.is_valid_hand(&self.dealer_cards) {
+			return Err(ActionError::InvalidAction);
 		}
 
-		let dealer_total = self.hand_total(self.dealer_cards.clone());
-		let dealer_card = self.convert_face_cards(self.dealer_cards.clone())[0].to_string();
+		let player_total = self.hand_total(&self.player_cards);
+		if player_total == 21 {
+			return Ok(Action::Blackjack);
+		}
+		// } else if player_total > 21 {
+		// 	return Err(ActionError::ToManyCards);
+		// }
+
+		let dealer_total = self.hand_total(&self.dealer_cards);
+		let dealer_card = self.convert_face_cards(&self.dealer_cards)[0].to_string();
 
 		let pair = self.is_pair(self.player_cards.clone());
 
 		println!("\nPlayer total: {}", player_total);
 		println!("Dealer total: {}", dealer_total);
 
-		get_action(player_total, dealer_card, pair).ok_or("Failed to get decision").unwrap()
+		Ok(get_action(player_total, dealer_card, pair).ok_or("Failed to get decision").unwrap())
 	}
 }
 
@@ -134,6 +128,5 @@ fn main() {
 
 	let calculator = Calculator::new(player_hand, dealer_hand);
 	let action = calculator.suggest_action();
-
-	println!("\nAction: {}\nTook {:?} to calculate action", action.as_str(), start.elapsed());
+	println!("\nAction: {}\nTook {:?} to calculate action", action.unwrap().as_str(), start.elapsed());
 }

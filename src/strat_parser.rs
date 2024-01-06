@@ -1,10 +1,9 @@
-// use serde::{Deserialize, Serialize};
 use serde_json::from_str;
 use std::collections::HashMap;
+use std::str::FromStr;
+use strum_macros::EnumString;
 
-pub const CARD_ORDER: [&str; 13] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq, EnumString)]
 pub enum Action {
 	Hit,
 	Stand,
@@ -16,6 +15,23 @@ pub enum Action {
 	SurrenderStand,
 	SurrenderSplit,
 	Blackjack,
+}
+
+#[derive(Debug)]
+pub enum ActionError {
+	InvalidAction,
+	ToManyCards,
+	InvalidHand,
+}
+
+impl From<ActionError> for &str {
+	fn from(error: ActionError) -> Self {
+		match error {
+			ActionError::InvalidAction => "Invalid action",
+			ActionError::ToManyCards => "To many cards",
+			ActionError::InvalidHand => "Invalid hand",
+		}
+	}
 }
 
 impl Action {
@@ -33,61 +49,25 @@ impl Action {
 			Self::Blackjack => "You have blackjack!",
 		}
 	}
-
-	pub fn from_str(action: &str) -> Option<Self> {
-		match action {
-			"Hit" => Some(Self::Hit),
-			"Stand" => Some(Self::Stand),
-			"Double if allowed, otherwise hit" => Some(Self::DoubleHit),
-			"Double if allowed, otherwise stand" => Some(Self::DoubleStand),
-			"Split" => Some(Self::Split),
-			"Split if double after split is allowed, otherwise hit" => Some(Self::SplitHit),
-			"Surrender if allowed, otherwise hit" => Some(Self::SurrenderHit),
-			"Surrender if allowed, otherwise stand" => Some(Self::SurrenderStand),
-			"Surrender if allowed and double after split not allowed, otherwise split" => Some(Self::SurrenderSplit),
-			"You have blackjack!" => Some(Self::Blackjack),
-			_ => None,
-		}
-	}
 }
 
-type Strategy = HashMap<String, DealerCard>;
-type DealerCard = HashMap<String, String>; 
-type PlayerCard = Option<HashMap<String, String>>;
+type Strategy = HashMap<String, HashMap<String, String>>;
+type PlayerCard<'a> = Option<&'a HashMap<String, String>>;
 
 fn get_strategy() -> Strategy {
 	let strategy_json = include_str!("../strategies/2-deck-hit-soft-17.json");
-	let strategy: Strategy = from_str(strategy_json).expect("Failed to parse strategy table JSON");
-	strategy
+	from_str(strategy_json).expect("Failed to parse strategy table JSON")
 }
 
-fn find_player_card(strategy_table: Strategy, player_count: u8, pair: Option<String>) -> PlayerCard {
-	if pair.is_some() {
-		let found_pair = strategy_table.get(pair.as_ref()?);
-
-		if let Some(pair_actions) = found_pair {
-			println!("Found pair: {}", pair?);
-			return Some(pair_actions.clone());
-		}
-		return None;
-	}
-
-	let found_player_card = strategy_table.get(&player_count.to_string());
-	if let Some(player_actions) = found_player_card {
-		return Some(player_actions.clone());
-	}
-	return None;
+fn find_player_card<'a>(strategy_table: &'a Strategy, player_count: u8, pair: Option<String>) -> PlayerCard<'a> {
+	pair.as_ref()
+		.and_then(|pair_name| strategy_table.get(pair_name))
+		.or_else(|| strategy_table.get(&player_count.to_string()))
 }
 
 pub fn get_action(player_count: u8, dealer_card: String, pair: Option<String>) -> Option<Action> {
 	let strategy_table = get_strategy();
-
-	let player_card: PlayerCard = find_player_card(strategy_table, player_count, pair);
-	if let Some(player_actions) = player_card {
-		if let Some(action) = player_actions.get(&dealer_card) {
-			return Action::from_str(action);
-		}
-		return None;
-	}
-	None
+	let player_actions = find_player_card(&strategy_table, player_count, pair)?;
+	let action = player_actions.get(&dealer_card)?;
+	Some(Action::from_str(action).unwrap())
 }
