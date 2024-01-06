@@ -1,3 +1,4 @@
 {
-	"cSpell.words": ["strat"]
+	"cSpell.words": ["strat"],
+	"rust-analyzer.linkedProjects": [".\\Cargo.toml"]
 }
