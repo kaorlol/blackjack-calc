@@ -27,6 +27,9 @@ fn suggest_action(player_hand: Vec<String>, dealer_hand: Vec<String>) -> Result<
 
 	println!("\nPlayer total: {}", player_total);
 	println!("Dealer total: {}", dealer_total);
+	if pair.is_some() {
+		println!("Found pair: {}", pair.as_ref().unwrap());
+	}
 
 	Ok(get_action(player_total, dealer_card, pair).expect(ActionError::InvalidAction.into()))
 }

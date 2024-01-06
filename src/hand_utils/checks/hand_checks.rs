@@ -9,11 +9,9 @@ pub fn is_pair(cards: &Vec<String>) -> Option<String> {
 
 	match ordered_cards.as_slice() {
 		[first_card, second_card] if is_ace(first_card) && (is_ace(second_card) || is_number(second_card)) => {
-			println!("Found pair: {first_card},{second_card}");
 			Some(format!("{},{}", first_card, second_card))
 		}
 		[first_card, second_card] if is_number(first_card) && is_number(second_card) && first_card == second_card => {
-			println!("Found pair: {first_card},{second_card}");
 			Some(format!("{},{}", first_card, second_card))
 		}
 		_ => None,
