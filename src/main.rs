@@ -2,14 +2,14 @@ mod hand_utils;
 mod strat_parser;
 
 use hand_utils::{
-	checks::hand_checks::{is_bust, is_pair, is_valid_hand},
-	convert_face_cards, hand_total,
+	checks::hand_checks::{is_bust, is_pair},
+	hand_total, Card,
 };
 use std::{io, time::Instant};
 use strat_parser::{get_action, Action, ActionError};
 
 fn suggest_action(player_hand: Vec<String>, dealer_hand: Vec<String>) -> Result<Action, ActionError> {
-	if !is_valid_hand(&player_hand) || !is_valid_hand(&dealer_hand) {
+	if !Card::is_valid_hand(&player_hand) || !Card::is_valid_hand(&dealer_hand) {
 		return Err(ActionError::InvalidHand);
 	}
 
@@ -21,7 +21,7 @@ fn suggest_action(player_hand: Vec<String>, dealer_hand: Vec<String>) -> Result<
 	}
 
 	let dealer_total = hand_total(&dealer_hand);
-	let dealer_card = convert_face_cards(&dealer_hand)[0].to_string();
+	let dealer_card = Card::convert_cards(&dealer_hand)[0].to_string();
 
 	let pair = is_pair(&player_hand);
 

@@ -1,31 +1,85 @@
+use std::cmp::Ordering;
+
 pub mod checks;
 
-use checks::card_checks::is_ace;
-pub const CARD_ORDER: [&str; 13] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-pub const FACE_CARDS: [&str; 3] = ["J", "Q", "K"];
-
-pub fn convert_face_cards(hand: &Vec<String>) -> Vec<String> {
-	hand.iter()
-		.map(|card| FACE_CARDS.contains(&card.as_str()).then(|| "10".to_string()).unwrap_or(card.to_string()))
-		.collect()
+pub enum Card {
+	Numbered(u8),
+	Face,
+	Ace,
 }
 
-pub fn order_hand(hand: &Vec<String>) -> Vec<String> {
-	hand.iter()
-		.map(|card| CARD_ORDER.iter().find(|c| c == &&card.as_str()).map(|c| c.to_string()).unwrap_or(card.to_string()))
-		.collect()
+impl Card {
+	pub fn to_string(&self) -> String {
+		match self {
+			Card::Numbered(value) => value.to_string(),
+			Card::Face => "10".to_string(),
+			Card::Ace => "A".to_string(),
+		}
+	}
+
+	pub fn convert_cards(cards: &Vec<String>) -> Vec<Card> {
+		cards
+			.iter()
+			.map(|card| match card.as_str() {
+				"A" => Card::Ace,
+				"J" | "Q" | "K" => Card::Face,
+				_ => Card::Numbered(card.parse::<u8>().unwrap()),
+			})
+			.collect()
+	}
+
+	pub fn is_valid_hand(cards: &Vec<String>) -> bool {
+		let hand = Card::convert_cards(cards);
+		hand.iter().all(|card| match card {
+			Card::Numbered(value) => *value >= 2 && *value <= 10,
+			Card::Face | Card::Ace => true,
+		})
+	}
+
+	pub fn organize_hand(cards: &Vec<String>) -> Vec<String> {
+		let mut hand = Card::convert_cards(cards);
+		hand.sort_by(|a, b| match (a, b) {
+			(Card::Numbered(a), Card::Numbered(b)) => a.cmp(b),
+			(Card::Numbered(_), _) => Ordering::Less,
+			(_, Card::Numbered(_)) => Ordering::Greater,
+			_ => Ordering::Equal,
+		});
+		hand.iter().map(|card| card.to_string()).collect()
+	}
 }
+
+// pub fn covert_hand_to_cards(hand: &Vec<String>) -> Vec<Card> {
+// 	hand.iter()
+// 		.map(|card| match card.as_str() {
+// 			"A" => Card::Ace,
+// 			"J" | "Q" | "K" => Card::Face,
+// 			_ => Card::Numbered(card.parse::<u8>().unwrap()),
+// 		})
+// 		.collect()
+// }
 
 pub fn hand_total(hand: &Vec<String>) -> u8 {
-	hand.iter()
-		.map(|card| {
-			if is_ace(card) {
-				11
-			} else if FACE_CARDS.contains(&card.as_str()) {
-				10
-			} else {
-				card.parse::<u8>().unwrap()
+	let hand = Card::convert_cards(hand);
+	let mut total = 0;
+	let mut ace_count = 0;
+
+	for card in hand {
+		match card {
+			Card::Numbered(value) => total += value,
+			Card::Face | Card::Ace => {
+				total += 10;
+				if let Card::Ace = card {
+					ace_count += 1;
+				}
 			}
-		})
-		.sum()
+		}
+	}
+
+	// Adjust for Aces
+	while ace_count > 0 && total > 21 {
+		total -= 10;
+		ace_count -= 1;
+	}
+
+	total
 }
