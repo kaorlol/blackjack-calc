@@ -48,16 +48,6 @@ impl Card {
 	}
 }
 
-// pub fn covert_hand_to_cards(hand: &Vec<String>) -> Vec<Card> {
-// 	hand.iter()
-// 		.map(|card| match card.as_str() {
-// 			"A" => Card::Ace,
-// 			"J" | "Q" | "K" => Card::Face,
-// 			_ => Card::Numbered(card.parse::<u8>().unwrap()),
-// 		})
-// 		.collect()
-// }
-
 pub fn hand_total(hand: &Vec<String>) -> u8 {
 	let hand = Card::convert_cards(hand);
 	let mut total = 0;
@@ -75,7 +65,6 @@ pub fn hand_total(hand: &Vec<String>) -> u8 {
 		}
 	}
 
-	// Adjust for Aces
 	while ace_count > 0 && total > 21 {
 		total -= 10;
 		ace_count -= 1;
