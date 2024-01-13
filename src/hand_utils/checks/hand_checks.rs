@@ -1,19 +1,19 @@
-use crate::hand_utils::{checks::card_checks::is_ace, hand_total, Card};
-
-fn is_number(str: &str) -> bool {
-	str.parse::<u8>().is_ok()
-}
+use crate::hand_utils::{hand_total, Card};
 
 pub fn is_pair(cards: &Vec<String>) -> Option<String> {
-	let ordered_cards = Card::organize_hand(cards);
+	let hand = Card::convert_cards(cards);
+	if hand.len() != 2 {
+		return None;
+	}
 
-	match ordered_cards.as_slice() {
-		[first_card, second_card] if is_ace(first_card) && (is_ace(second_card) || is_number(second_card)) => {
-			Some(format!("{},{}", first_card, second_card))
-		}
-		[first_card, second_card] if is_number(first_card) && is_number(second_card) && first_card == second_card => {
-			Some(format!("{},{}", first_card, second_card))
-		}
+	let first = &hand[0];
+	let second = &hand[1];
+
+	match (first, second) {
+		(Card::Ace, Card::Ace) => Some("A,A".to_string()),
+		(Card::Ace, Card::Numbered(_)) => Some(format!("A,{}", second.to_string())),
+		(Card::Numbered(_), Card::Ace) => Some(format!("{},A", first.to_string())),
+		(Card::Numbered(a), Card::Numbered(b)) if a == b => Some(format!("{}{}", a, b)),
 		_ => None,
 	}
 }

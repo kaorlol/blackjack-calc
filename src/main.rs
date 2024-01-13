@@ -52,11 +52,27 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_suggest_action() {
+	fn test_suggest_action_split() {
 		let player_hand = vec!["A".to_string(), "A".to_string()];
 		let dealer_hand = vec!["Q".to_string()];
 		let result = suggest_action(player_hand, dealer_hand);
 		assert_eq!(result.unwrap(), Action::Split);
+	}
+
+	#[test]
+	fn test_suggest_action_hit() {
+		let player_hand = vec!["A".to_string(), "2".to_string()];
+		let dealer_hand = vec!["Q".to_string()];
+		let result = suggest_action(player_hand, dealer_hand);
+		assert_eq!(result.unwrap(), Action::Hit);
+	}
+
+	#[test]
+	fn test_suggest_action_stand() {
+		let player_hand = vec!["A".to_string(), "2".to_string(), "2".to_string(), "2".to_string(), "2".to_string()];
+		let dealer_hand = vec!["Q".to_string()];
+		let result = suggest_action(player_hand, dealer_hand);
+		assert_eq!(result.unwrap(), Action::Stand);
 	}
 }
 
@@ -69,6 +85,9 @@ fn main() {
 
 	let start = Instant::now();
 
-	let action = suggest_action(player_hand, dealer_hand).expect("Failed to get action");
-	println!("\nAction: {}\nTook {:?} to calculate action", action.as_str(), start.elapsed());
+	let action = suggest_action(player_hand, dealer_hand);
+	match action {
+		Ok(action) => println!("\nAction: {}\nTook {:?} to calculate action", action.as_str(), start.elapsed()),
+		Err(err) => println!("\nError: {}", err),
+	}
 }

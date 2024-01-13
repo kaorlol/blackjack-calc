@@ -8,6 +8,17 @@ pub enum Card {
 	Ace,
 }
 
+// as_str for Card
+impl ToString for Card {
+	fn to_string(&self) -> String {
+		match self {
+			Card::Numbered(value) => value.to_string(),
+			Card::Face => "10".to_string(),
+			Card::Ace => "A".to_string(),
+		}
+	}
+}
+
 impl Card {
 	pub fn to_string(&self) -> String {
 		match self {

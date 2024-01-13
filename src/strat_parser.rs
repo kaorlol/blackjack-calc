@@ -1,5 +1,5 @@
 use serde_json::from_str;
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap, fmt, str::FromStr};
 use strum_macros::{Display, EnumString};
 
 #[derive(Debug, PartialEq, EnumString, Display)]
@@ -34,6 +34,17 @@ impl Into<&'static str> for ActionError {
 	}
 }
 
+impl fmt::Display for ActionError {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match *self {
+			ActionError::InvalidHand => write!(f, "Invalid hand"),
+			ActionError::TooManyCards => write!(f, "Too many cards"),
+			ActionError::Blackjack => write!(f, "Blackjack"),
+			ActionError::InvalidAction => write!(f, "Invalid action"),
+		}
+	}
+}
+
 impl Action {
 	pub fn as_str(&self) -> &str {
 		match self {
@@ -58,15 +69,13 @@ fn get_strategy() -> Strategy {
 	from_str(strategy_json).expect("Failed to parse strategy table JSON")
 }
 
-fn find_player_card<'a>(strategy_table: &'a Strategy, player_count: u8, pair: Option<String>) -> PlayerCard<'a> {
-	pair.as_ref()
-		.and_then(|pair_name| strategy_table.get(pair_name))
-		.or_else(|| strategy_table.get(&player_count.to_string()))
+fn find_player_card<'a>(strategy_table: &'a Strategy, player_count: u8, pair: Option<&str>) -> PlayerCard<'a> {
+	pair.and_then(|pair_name| strategy_table.get(pair_name)).or_else(|| strategy_table.get(&player_count.to_string()))
 }
 
 pub fn get_action(player_count: u8, dealer_card: String, pair: Option<String>) -> Option<Action> {
 	let strategy_table = get_strategy();
-	let player_actions = find_player_card(&strategy_table, player_count, pair)?;
+	let player_actions = find_player_card(&strategy_table, player_count, pair.as_deref())?;
 	let action = player_actions.get(&dealer_card)?;
 	Some(Action::from_str(action).expect(ActionError::InvalidAction.into()))
 }
