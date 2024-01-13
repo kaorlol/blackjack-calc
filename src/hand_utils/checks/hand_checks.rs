@@ -6,14 +6,12 @@ pub fn is_pair(cards: &Vec<String>) -> Option<String> {
 		return None;
 	}
 
-	let first = &hand[0];
-	let second = &hand[1];
-
+	let (first, second) = (&hand[0], &hand[1]);
 	match (first, second) {
 		(Card::Ace, Card::Ace) => Some("A,A".to_string()),
 		(Card::Ace, Card::Numbered(_)) => Some(format!("A,{}", second.to_string())),
 		(Card::Numbered(_), Card::Ace) => Some(format!("{},A", first.to_string())),
-		(Card::Numbered(a), Card::Numbered(b)) if a == b => Some(format!("{}{}", a, b)),
+		(Card::Numbered(a), Card::Numbered(b)) if a == b => Some(format!("{},{}", a, b)),
 		_ => None,
 	}
 }
