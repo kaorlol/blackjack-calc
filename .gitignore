@@ -1,1 +1,5 @@
 /target
+
+# for replit
+.cargo
+.replit
